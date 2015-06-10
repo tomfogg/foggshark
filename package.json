@@ -1,0 +1,12 @@
+{
+  "name": "foggshark",
+  "version": "1.0.0",
+  "description": "visualise system network activity from a tcpdump file",
+  "repository": "https://github.com/tomfogg/foggshark.git",
+  "main": "process.js",
+  "author": "tom@canobe.com",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "express": "^4.12.4"
+  }
+}
