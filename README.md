@@ -26,4 +26,6 @@ Download the log files from all the machines into one directory and run
 
      cat *.log | node process.js
 
-Wait for the script to finish looking up the DNS entries for the hosts and then open http://127.0.0.1:8000 where your graph should be waiting. You can move around nodes on the graph to see things better.
+Wait for the script to finish looking up the DNS entries for the hosts and then open http://127.0.0.1:8000 where your graph should be waiting. 
+
+You can move around nodes on the graph to see things better. The hosts in the graph are grouped such that hosts which connect only to one other host on the same port are grouped together by port. Mouse over the nodes to reveal which hosts are in the group. The links are colour coded by port and the size of nodes reflects the number of hosts in the group.
