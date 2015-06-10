@@ -3,7 +3,7 @@ FoggShark
 
 Get an overview of how a system just by running [tcpdump](http://www.tcpdump.org) on one or more machines on the network.
 
-[graph](graph.png)
+![graph](graph.png)
 
 
 Collecting tcpdump data
