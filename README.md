@@ -1,7 +1,7 @@
 FoggShark
 ===
 
-Get an overview of how what a system connects to just by running [tcpdump](http://www.tcpdump.org) on one or more machines on the network.
+Get an overview of what a system connects to just by running [tcpdump](http://www.tcpdump.org) on one or more machines on the network.
 
 ![graph](graph.png)
 
