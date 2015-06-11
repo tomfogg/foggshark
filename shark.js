@@ -131,12 +131,11 @@ d3.json("nodes.json", function(error, graph) {
 
     // redraw the graph
     force.on("tick", function() {
+        node.attr("cx", function(d) { d.x = Math.max(d.size, Math.min(width - d.size, d.x)); return d.x;})
+        .attr("cy", function(d) { d.y = Math.max(d.size, Math.min(height - d.size, d.y)); return d.y;});
         link.attr("d", function(d) {return "M"+d[0].x+","+d[0].y+"S"+d[1].x+","+d[1].y+" "+d[2].x+","+d[2].y;});
         var soff = 0;
         shadowlink.attr("d", function(d) {return "M"+(d[0].x+soff)+","+(d[0].y+soff)+"S"+(d[1].x+soff)+","+(d[1].y+soff)+" "+(d[2].x+soff)+","+(d[2].y+soff);});
-        node.attr("transform", function(d) { 
-            return 'translate(' + [d.x, d.y] + ')'; 
-        });    
     });
    
     // generate a decent graph 
