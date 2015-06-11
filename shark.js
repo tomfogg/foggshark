@@ -1,16 +1,21 @@
-var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)-10;
+var width = 0;
+var height = 0;
 var color = d3.scale.category10();
 var color2 = d3.scale.category20();
 
-var force = d3.layout.force()
-.charge(-120)
-.linkDistance(30)
-.size([width, height]);
+var svg = d3.select("body").append("svg");
+var force = d3.layout.force();
 
-var svg = d3.select("body").append("svg")
-.attr("width", width)
-.attr("height", height);
+window.onresize = function() {
+    width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)-10;
+    svg.attr("width", width)
+    .attr("height", height);
+    force.size([width,height]);
+    force.charge(-Math.min(width,height));
+    force.linkDistance(30);
+    force.tick();
+};
 
 d3.json("nodes.json", function(error, graph) {
 
@@ -33,7 +38,6 @@ d3.json("nodes.json", function(error, graph) {
     .nodes(nodes)
     .links(links)
     .gravity(0.5)
-    .size([width, height])
     .charge(function(d) { return d.size ? -d.size*100 : -1000; });
 
     var ports = [80,3306,11211,443,21,25,22,8080];
@@ -137,9 +141,7 @@ d3.json("nodes.json", function(error, graph) {
         var soff = 0;
         shadowlink.attr("d", function(d) {return "M"+(d[0].x+soff)+","+(d[0].y+soff)+"S"+(d[1].x+soff)+","+(d[1].y+soff)+" "+(d[2].x+soff)+","+(d[2].y+soff);});
     });
-   
-    // generate a decent graph 
+
+    window.onresize();
     force.start();
-    for (var i = 200; i > 0; --i) force.tick();
-    force.stop();
 });
