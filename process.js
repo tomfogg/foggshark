@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var dns = require('dns');
 
 function loaddump(callback) {
@@ -135,19 +137,38 @@ function showlinks(links,cache,hosts) {
 
 }
 
+opt = require('node-getopt').create([
+  ['n' , ''                    , 'disable DNS lookup.'],
+  ['h' , 'help'                , 'display this help']
+])
+.setHelp(
+  "Usage: foggshark [OPTION]\n" +
+  " collect tcpdump logs with this command:\n\n" +
+  "   sudo tcpdump -nnl 'tcp[13] == 2' | perl -ne '$|=1;/([\\d.]+)\\.(\\d+) > ([\\d.]+)\\.(\\d+)/;$f=$1;$t=$3;$p=$4;if($4>30000){$f=$3;$t=$1;$p=$2;}$o=\"$f>$t:$p\\n\";if(!$s{$o}){$s{$o}=1;print$o;}'> `hostname`.log\n\n" +
+  " produce the graphs with this command:\n\n"+
+  "   cat *.log | foggshark\n\n"+
+  "Options:\n" +
+  "[[OPTIONS]]\n" +
+  "\n")
+.bindHelp()
+.parseSystem();
+
 loaddump(function(links) {
     console.log('importing dump');
     grouplinks(links,function(outlink,allhosts,hosts) {
         var c = 0;
         var cache = {};
-        console.log('doing dns lookup');
-        allhosts.map(function(h) {
-            dns.reverse(h,function(err,hn) {
-                if(hn === undefined) hn = [h];
-                cache[h] = hn[0];
-                c++;
-                if(c >= allhosts.length) showlinks(outlink,cache,hosts);
+        if(opt.options.n) showlinks(outlink,cache,hosts);
+        else {
+            console.log('doing dns lookup');
+            allhosts.map(function(h) {
+                dns.reverse(h,function(err,hn) {
+                    if(hn === undefined) hn = [h];
+                    cache[h] = hn[0];
+                    c++;
+                    if(c >= allhosts.length) showlinks(outlink,cache,hosts);
+                });
             });
-        });
+        }
     });
 });
