@@ -12,7 +12,6 @@ window.onresize = function() {
     svg.attr("width", width)
     .attr("height", height);
     force.size([width,height]);
-    force.charge(-Math.min(width,height));
     force.linkDistance(30);
     force.tick();
 };
@@ -38,7 +37,7 @@ d3.json("nodes.json", function(error, graph) {
     .nodes(nodes)
     .links(links)
     .gravity(0.5)
-    .charge(function(d) { return d.size ? -d.size*100 : -1000; });
+    .charge(function(d) { return -Math.min(width,height,d.size ? d.size*100 : 1000); });
 
     var ports = [80,3306,11211,443,21,25,22,8080];
     var portnames = ['http','mysql','memcache','https','ftp','smtp','ssh','http'];
