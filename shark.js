@@ -39,27 +39,8 @@ d3.json("nodes.json", function(error, graph) {
     var ports = [80,3306,11211,443,21,25,22,8080];
     var portnames = ['http','mysql','memcache','https','ftp','smtp','ssh','http'];
 
-    // dropshadow filter
-    var defs = svg.append('defs');
-    var filter = defs.append("filter")
-    .attr("id", "drop-shadow")
-    .attr("height", "150%");
-    filter.append("feGaussianBlur")
-    .attr("in", "SourceAlpha")
-    .attr("stdDeviation", 5)
-    .attr("result", "blur");
-    filter.append("feOffset")
-    .attr("in", "blur")
-    .attr("dx", 5)
-    .attr("dy", 5)
-    .attr("result", "offsetBlur");
-    var feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode")
-    .attr("in", "offsetBlur");
-    feMerge.append("feMergeNode")
-    .attr("in", "SourceGraphic");
-
     // add an arrow for each line
+    var defs = svg.append('defs');
     var arrows = defs.selectAll('.arrow')
     .data(bilinks)
     .enter()
@@ -78,6 +59,20 @@ d3.json("nodes.json", function(error, graph) {
     }).append('svg:path')
     .style("fill", function(d) { var p = ports.indexOf(d[3]); return p == -1 ? color2(0) : color2(p+1); })
     .attr('d', 'M 0,-5 L 10 ,0 L 0,5');
+    defs.append('marker')
+    .style("pointer-events", "none")
+    .attr({
+        'id':'shadowarrow',
+        'class': 'shadowarrow',
+        'viewBox':'-0 -5 10 10',
+        'refX': 8,
+        'refY':0,
+        'orient':'auto',
+        'markerWidth':10,
+        'markerHeight':10,
+        'xoverflow':'visible'
+    }).append('svg:path')
+    .attr('d', 'M 0,-5 L 10 ,0 L 0,5');
     
     // add a circle for each host group
     var node = svg.selectAll('.node')
@@ -90,6 +85,16 @@ d3.json("nodes.json", function(error, graph) {
     .call(force.drag);
 
     // draw lines between hosts
+    var shadowlink = svg.selectAll(".shadowlink")
+    .data(bilinks)
+    .enter()
+    .append("path")
+    .attr("class", "shadowlink")
+    .style("pointer-events", "none")
+    .attr("id", function(d,i) { return "shadowlink"+i;})
+    .attr('marker-end',function(d,i) { return 'url(#shadowarrow)'; });
+
+    // draw lines between hosts
     var link = svg.selectAll(".link")
     .data(bilinks)
     .enter()
@@ -98,7 +103,6 @@ d3.json("nodes.json", function(error, graph) {
     .style("pointer-events", "none")
     .attr("id", function(d,i) { return "link"+i;})
     .attr('marker-end',function(d,i) { return 'url(#arrow'+i+')'; })
-    .style("filter", "url(#drop-shadow)")
     .style("stroke", function(d) { var p = ports.indexOf(d[3]); return p == -1 ? color2(0) : color2(p+1); });
 
     // label the ports on the lines
@@ -109,13 +113,15 @@ d3.json("nodes.json", function(error, graph) {
     .style("pointer-events", "none")
     .attr({'class':'llabel',
           'id':function(d,i){return 'llabel'+i;},
-          'dx':40,
-          'dy':0
+          'dx':0,
+          'dy':0,
     });
 
     // make the label follow the line curve
     labels.append('textPath')
     .attr('xlink:href',function(d,i) {return '#link'+i;})
+    .style("text-anchor","end") 
+    .attr("startOffset","80%")
     .style("pointer-events", "none")
     .text(function(d){ return ports.indexOf(d[3]) !== -1 ? portnames[ports.indexOf(d[3])] : d[3];});
 
@@ -126,6 +132,8 @@ d3.json("nodes.json", function(error, graph) {
     // redraw the graph
     force.on("tick", function() {
         link.attr("d", function(d) {return "M"+d[0].x+","+d[0].y+"S"+d[1].x+","+d[1].y+" "+d[2].x+","+d[2].y;});
+        var soff = 2;
+        shadowlink.attr("d", function(d) {return "M"+(d[0].x+soff)+","+(d[0].y+soff)+"S"+(d[1].x+soff)+","+(d[1].y+soff)+" "+(d[2].x+soff)+","+(d[2].y+soff);});
         node.attr("transform", function(d) { 
             return 'translate(' + [d.x, d.y] + ')'; 
         });    
