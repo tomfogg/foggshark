@@ -13,7 +13,6 @@ window.onresize = function() {
     .attr("height", height);
     force.size([width,height]);
     force.linkDistance(30);
-    force.tick();
 };
 
 d3.json("nodes.json", function(error, graph) {
@@ -65,8 +64,7 @@ d3.json("nodes.json", function(error, graph) {
     defs.append('marker')
     .style("pointer-events", "none")
     .attr({
-        'id':'shadowarrow',
-        'class': 'shadowarrow',
+        'id': 'shadowarrow',
         'viewBox':'-0 -3 6 6',
         'refX': 2.5,
         'refY':0,
@@ -75,7 +73,8 @@ d3.json("nodes.json", function(error, graph) {
         'markerHeight':6,
         'xoverflow':'visible'
     }).append('svg:path')
-    .attr('d', 'M 0,-2 L 6 ,0 L 0,3');
+    .attr('d', 'M 0,-2 L 6 ,0 L 0,3')
+    .attr('class','shadowarrow');
     
     // add a circle for each host group
     var node = svg.selectAll('.node')
@@ -134,8 +133,8 @@ d3.json("nodes.json", function(error, graph) {
 
     // redraw the graph
     force.on("tick", function() {
-        node.attr("cx", function(d) { d.x = Math.max(d.size, Math.min(width - d.size, d.x)); return d.x;})
-        .attr("cy", function(d) { d.y = Math.max(d.size, Math.min(height - d.size, d.y)); return d.y;});
+        node.attr("cx", function(d) { return Math.max(d.size, Math.min(width - d.size, d.x)); })
+        .attr("cy", function(d) { return Math.max(d.size, Math.min(height - d.size, d.y)); });
         link.attr("d", function(d) {return "M"+d[0].x+","+d[0].y+"S"+d[1].x+","+d[1].y+" "+d[2].x+","+d[2].y;});
         var soff = 0;
         shadowlink.attr("d", function(d) {return "M"+(d[0].x+soff)+","+(d[0].y+soff)+"S"+(d[1].x+soff)+","+(d[1].y+soff)+" "+(d[2].x+soff)+","+(d[2].y+soff);});
