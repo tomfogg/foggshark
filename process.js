@@ -110,7 +110,7 @@ function grouplinks(links,callback) {
     callback(outlink,allhosts,hosts);
 }
 
-function showlinks(links,cache,hosts) {
+function showlinks(links,cache,hosts,port) {
     var out = JSON.stringify({nodes: hosts.map(function(d) {
         var name = d.split(/ /).map(function(h) {
             return cache[h] ? cache[h] : h;
@@ -133,12 +133,13 @@ function showlinks(links,cache,hosts) {
         res.writeHead(200);
         res.end(out);
     });
-    app.listen(8000, function() { console.log('open http://127.0.0.1:8000/'); });
+    app.listen(port, function() { console.log('open http://127.0.0.1:'+port+'/'); });
 
 }
 
 opt = require('node-getopt').create([
   ['n' , ''                    , 'disable DNS lookup.'],
+  ['p' , 'port=ARG'                    , 'disable DNS lookup.'],
   ['h' , 'help'                , 'display this help']
 ])
 .setHelp(
@@ -152,13 +153,15 @@ opt = require('node-getopt').create([
   "\n")
 .bindHelp()
 .parseSystem();
+var serverport = 8000;
+if(opt.options.port) serverport = opt.options.port;
 
 loaddump(function(links) {
     console.log('importing dump');
     grouplinks(links,function(outlink,allhosts,hosts) {
         var c = 0;
         var cache = {};
-        if(opt.options.n) showlinks(outlink,cache,hosts);
+        if(opt.options.n) showlinks(outlink,cache,hosts,serverport);
         else {
             console.log('doing dns lookup');
             allhosts.map(function(h) {
@@ -166,7 +169,7 @@ loaddump(function(links) {
                     if(hn === undefined) hn = [h];
                     cache[h] = hn[0];
                     c++;
-                    if(c >= allhosts.length) showlinks(outlink,cache,hosts);
+                    if(c >= allhosts.length) showlinks(outlink,cache,hosts,serverport);
                 });
             });
         }
