@@ -71,11 +71,13 @@ function grouplinks(links,callback) {
     var outlink = [];
     var set = {};
     for(i in out) {
+        var swap = false;
         var from = out[i].source;
         var to = out[i].target;
         if(out[i].source.length > out[i].target.length) {
             from = out[i].target;
             to = out[i].source;
+            swap = true;
         }
         if(hosts.indexOf(from[0]) === -1) hosts.push(from[0]);
         if(allhosts.indexOf(from[0]) === -1) allhosts.push(from[0]);
@@ -91,8 +93,8 @@ function grouplinks(links,callback) {
         });
         if(group.length) {
             outlink.push({
-                source: source, 
-                target: hosts.push(group.join(' '))-1, 
+                source: swap ? hosts.push(group.join(' '))-1 : source, 
+                target: swap ? source : hosts.push(group.join(' '))-1, 
                 port: out[i].port });
         }
         singles.map(function(d) {
@@ -100,8 +102,8 @@ function grouplinks(links,callback) {
             if(!set[h]) {
                 set[h] = 1;
                 outlink.push({
-                    source: source, 
-                    target: d, 
+                    source: swap ? d : source, 
+                    target: swap ? source : d, 
                     port: out[i].port });
             }
         });
